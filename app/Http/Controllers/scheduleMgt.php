@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class scheduleMgt extends Controller
 {
@@ -43,7 +45,32 @@ class scheduleMgt extends Controller
         }else{
         }
 
-        return $result;
+        return response()->json($result);
+    }
+    public function showScheduleForMed(Request $request){
+        $validator = Validator::make($request->all(),[
+            'start'=>'required|after:'.Carbon::now(),
+            'end'=>'required',
+            'doctor_id'=>'required',
+        ]);
+
+        if($validator->fails())
+            return $validator->errors()->all();
+
+        $result = DB::select(DB::raw(
+            'SELECT Appointment.syntom,
+              Appointment.start,
+              Appointment.id,
+              CONCAT(Patient.firstname,Patient.lastname)
+              AS name
+            FROM Appointment
+            WHERE start>=:start
+            AND statr <= :end 
+            INNER JOIN Patient
+            ON Appointment.patient_id=Patient.id'
+        ));
+
+        response()->json($result);
     }
 
     public function getAvailableDateTimeFromDoctor($doctor_id,$start,$end){
@@ -87,7 +114,6 @@ class scheduleMgt extends Controller
 
         return $result;
     }
-
     public function isAvailableDateTime($doctor_id,$start){
         $input = array(
             'doctor_id'=>$doctor_id,
@@ -95,13 +121,18 @@ class scheduleMgt extends Controller
         );
 
         //get unavailable
-        $count = DB::select(DB::raw('SELECT Count(*) as Count
+        $count = DB::select(DB::raw('SELECT Count(*) as No
             FROM Appointment 
             WHERE doctor_id = :doctor_id
-            AND start==:start'),$input);
+            AND start=:start'),$input);
 
         /*
         $patient_num = $count[0]
         */
+        if($count[0]->No == 15)
+            return false;
+        return true;
     }
+
+
 }

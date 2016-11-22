@@ -1,7 +1,7 @@
-<?php
-/**
- * Created by PhpStorm.
- * User: anakin
- * Date: 11/22/16
- * Time: 5:35 PM
- */
+<html>
+<head></head>
+<body style="background: white; color: black">
+<h1>แจ้งการทำนัด</h1>
+<p>คุณได้ทำรายการนัดกับคุณหมอ{{$doctor_name}} แผนก{{$department_name}} วันที่ {{$datetime}} ขอขอบคุณสำหรับการใช้บริการค่ะ</p>
+</body>
+</html>

@@ -19,8 +19,7 @@ class wardRoundMgt extends Controller
         if($validator->fails())
             return $validator->errors()->all();
 
-        return response('Hello World', 200)
-            ->header('Content-Type', 'text/plain');
+        return response()->json(['message' => 'Request completed']);
     }
     public function confirmAddWR(Request $request){
 
@@ -40,6 +39,27 @@ class wardRoundMgt extends Controller
 
         return response('Hello World', 200)
             ->header('Content-Type', 'text/plain');
+    }
+
+    //read
+    public function getWardRoundList(Request $request){
+        $validator = Validator::make($request->all(),[
+            'start'=>'required|after:'.Carbon::now(),
+            'editor'=>'required',
+            'doctor_id'=>'required|exists:Staff,id'
+        ]);
+
+        if($validator->fails())
+            return $validator->errors()->all();
+
+        $input = $request->all();
+        $result = DB::select(DB::raw('
+            SELECT start
+            FROM RoundTime
+            WHERE doctor_id = :doctor_id
+        '),$input);
+
+        return response()->json($result);
     }
 
     //Cancel
